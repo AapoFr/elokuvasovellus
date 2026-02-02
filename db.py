@@ -2,10 +2,12 @@ import sqlite3
 from flask import g
 
 def get_connection():
-    con = sqlite3.connect("database.sql")
+    con = sqlite3.connect("database.db")
     con.execute("PRAGMA foreign_keys = ON")
+    con.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password_hash TEXT)")
     con.row_factory = sqlite3.Row
     return con
+
 
 def execute(sql, params=[]):
     con = get_connection()

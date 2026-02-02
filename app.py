@@ -1,15 +1,38 @@
 from flask import Flask
+from flask import session
 from flask import render_template, request, redirect
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import db
+import config
 
 app = Flask(__name__)
+app.secret_key = config.secret_key
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route("/loginPost)", methods=["POST"])
+def loginPost():
+
+    username = request.form["username"]
+    password = request.form["password1"]
+    
+    sql = "SELECT password_hash FROM users WHERE username = ?"
+    password_hash = db.query(sql, [username])[0][0]
+    if check_password_hash(password_hash, password):
+        session["username"] = username
+        return render_template("Homepage.html", message="Kirjautuminen onnistui.")
+    else:
+        return render_template("loginPost.html", message="Väärä käyttäjätunnus tai salasana.")
+    
+    
 @app.route("/register")
 def register():
     return render_template("register.html")
@@ -33,7 +56,4 @@ def registered():
 
 
 
-@app.route("/login")
-def login():
-    return render_template("login.html")
 
